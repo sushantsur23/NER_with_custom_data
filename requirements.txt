@@ -1,0 +1,16 @@
+numpy
+pandas
+seaborn
+sklearn
+pymongo
+fastapi
+nltk
+notebook
+notebook_shim
+ipykernel
+PyYAML
+ipykernel
+dill
+uvicorn
+tweepy
+tweepy-streaming-api-emu
