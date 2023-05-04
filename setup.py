@@ -17,7 +17,7 @@ def get_requirements()->List[str]:
 
 
 ## edit below variables as per your requirements -
-REPO_NAME = "Sentiment Analysis"
+REPO_NAME = "NER Project with custom data"
 AUTHOR_USER_NAME = "Sushant Sur"
 SRC_REPO = "src"
 LIST_OF_REQUIREMENTS = []
@@ -29,10 +29,10 @@ setup(
     name=SRC_REPO,
     version="0.0.1",
     author="Sushant Sur",
-    description="A small local packages for Sentiment analysis with Pytorch",
+    description="A small local packages for NER Implementation with Pytorch",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/sushantsur23/Sentiment_Analysis_Pytorch.git",
+    url="https://github.com/sushantsur23/NER_with_custom_data.git",
     author_email="sushantsur23@gmail.com",
     packages=find_packages(),
     license="MIT",

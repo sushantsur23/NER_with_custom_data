@@ -1,5 +1,5 @@
 echo [$(date)] : "STARTING INITIAL SETUP"
-export _VERSION_=3.8
+export _VERSION_=3.9
 
 echo [$(date)] : "PROJECT DIRECTORY NAME"
 read project_name_
@@ -21,7 +21,7 @@ touch ${project_name_}/components/__init__.py ${project_name_}/components/data_t
 
 echo [$(date)] : "CREATING MODEL TRAINING"
 # mkdir -p ${project_name_}/model_training
-touch ${project_name_}/components/__init__.py ${project_name_}/components/model_training.py
+touch ${project_name_}/components/__init__.py ${project_name_}/components/model_training.py ${project_name_}/components/model_pusher.py
 
 echo [$(date)] : "CREATING MODEL EVALUATION/ANALYSIS"
 mkdir -p ${project_name_}/model_analysis
@@ -31,17 +31,18 @@ echo [$(date)] : "CREATING CONFIGURATION COMPONENT"
 mkdir -p ${project_name_}/configuration
 touch ${project_name_}/configuration/__init__.py ${project_name_}/configuration/configuration_component.py
 
-echo [$(date)] : "CREATING LOGGING LAYER"
-mkdir -p ${project_name_}/logging
-touch ${project_name_}/logging/__init__.py ${project_name_}/logging/logging.py ${project_name_}/logging/logs.txt
+echo [$(date)] : "CREATING LOGGING AND EXCEPTION LAYER"
+# mkdir -p ${project_name_}/logging
+# touch ${project_name_}/logging/__init__.py ${project_name_}/logging/logging.py ${project_name_}/logging/logs.txt
+touch ${project_name_}/logger.py ${project_name_}/exception.py
 
 echo [$(date)] : "CREATING UTILITY LAYER"
 mkdir -p ${project_name_}/utils
 touch ${project_name_}/utils/__init__.py ${project_name_}/utils/main_utils.py
 
-echo [$(date)] : "CREATING EXCEPTION LAYER"
-mkdir -p ${project_name_}/exception
-touch ${project_name_}/exception/__init__.py ${project_name_}/exception/exception_handler.py
+# echo [$(date)] : "CREATING EXCEPTION LAYER"
+# mkdir -p ${project_name_}/exception
+# touch ${project_name_}/exception/__init__.py ${project_name_}/exception/exception_handler.py
 
 echo [$(date)] : "CREATING ENTITY LAYER"
 mkdir -p ${project_name_}/entity
@@ -51,8 +52,8 @@ touch ${project_name_}/entity/config_entity.py
 
 echo [$(date)] : "CREATING CONSTANT LAYER"
 mkdir -p ${project_name_}/constant
-mkdir -p ${project_name_}/constant/constant_names
-touch ${project_name_}/constant/constant_names/__init__.py
+mkdir -p ${project_name_}/constant/training_pipeline
+touch ${project_name_}/constant/training_pipeline/__init__.py
 touch ${project_name_}/constant/__init__.py ${project_name_}/constant/database.py
 touch ${project_name_}/constant/__init__.py ${project_name_}/constant/application.py
 touch ${project_name_}/constant/__init__.py ${project_name_}/constant/env_variable.py
@@ -86,12 +87,18 @@ touch ${project_name_}/Notebooks/test1.ipynb
 touch ${project_name_}/Notebooks/test2.ipynb
 touch ${project_name_}/Notebooks/test3.ipynb
 
+
+echo [$(date)] : "CREATING CLOUD STORAGE FOLDER"
+mkdir -p ${project_name_}/cloud_storage
+touch ${project_name_}/cloud_storage/__init__.py ${project_name_}/cloud_storage/s3_sync.py
+
+
 echo [$(date)] : "CREATING API ENDPOINT !"
 touch main.py
 
 echo [$(date)] : "CREATING CONDA ENVIRONMENT"
-conda create --prefix ./sentimentp python=${_VERSION_} -y
-source activate ./sentimentp
+conda create --prefix ./nerp python=${_VERSION_} -y
+source activate ./nerp
 
 echo [$(date)] : "CREATE REQUIREMENTS TEXT FILE"
 touch requirements.txt
@@ -107,7 +114,7 @@ else
   done
 fi
 }
-pip_requirements numpy pandas seaborn sklearn pymongo fastapi nltk notebook matplotlib ipykernel PyYAML notebook ipykernel dill uvicorn
+pip_requirements smart-open fsspec[http] pyYAML tqdm requests filelock typing-extensions networkx sympy numpy pandas seaborn sklearn pymongo fastapi nltk notebook matplotlib ipykernel PyYAML notebook transformers huggingface ipykernel dill uvicorn spacy torch torchvision torchaudio packaging regex jinja2
 
 
 echo [$(date)]: "CREATING DOCKER FILE"
