@@ -1,0 +1,9 @@
+columns:
+ - class: category
+ - sentence: str
+
+string_columns:
+  - sentence
+
+# drop_columns:
+  

@@ -96,6 +96,9 @@ touch ${project_name_}/cloud_storage/__init__.py ${project_name_}/cloud_storage/
 echo [$(date)] : "CREATING API ENDPOINT !"
 touch main.py
 
+mkdir -p config
+touch config/config.yaml
+
 echo [$(date)] : "CREATING CONDA ENVIRONMENT"
 conda create --prefix ./nerp python=${_VERSION_} -y
 source activate ./nerp
@@ -114,7 +117,7 @@ else
   done
 fi
 }
-pip_requirements smart-open fsspec[http] pyYAML tqdm requests filelock typing-extensions networkx sympy numpy pandas seaborn sklearn pymongo fastapi nltk notebook matplotlib ipykernel PyYAML notebook transformers huggingface ipykernel dill uvicorn spacy torch torchvision torchaudio packaging regex jinja2
+pip_requirements smart-open fsspec[http] dataclasses openpyxl datetime typing scikit-learn pyYAML tqdm requests filelock typing-extensions networkx sympy numpy pandas seaborn sklearn pymongo fastapi nltk notebook matplotlib ipykernel PyYAML notebook transformers huggingface ipykernel dill uvicorn spacy torch torchvision torchaudio packaging regex jinja2
 
 
 echo [$(date)]: "CREATING DOCKER FILE"

@@ -33,7 +33,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/sushantsur23/NER_with_custom_data.git",
-    author_email="sushantsur23@gmail.com",
+    author_email="sushant.sur23@gmail.com",
     packages=find_packages(),
     license="MIT",
     python_requires=">=3.8",

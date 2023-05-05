@@ -1,0 +1,1 @@
+from ner_custom.configuration.configuration_component import *
