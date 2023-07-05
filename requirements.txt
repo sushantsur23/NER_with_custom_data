@@ -6,5 +6,6 @@ numpy
 dill
 PyYAML
 certifi
+langdetect
 
 -e .

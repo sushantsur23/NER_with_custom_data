@@ -4,12 +4,12 @@ from typing import Tuple
 import numpy as np
 from pandas import DataFrame
 from sklearn.model_selection import train_test_split
-
+from langdetect import detect
 from ner_custom.entity.config_entity import DataIngestionConfig
 from ner_custom.entity.artifact_entity import DataIngestionArtifact
 from ner_custom.exception import MyException
 from ner_custom.logger import logging
-from ner_custom.utils.main_utils import read_yaml_file
+from ner_custom.utils.main_utils import *
 from ner_custom.data_access.data import Data
 from typing import List
 import os
@@ -22,6 +22,7 @@ class DataIngestion:
         """
         try:
             self.data_ingestion_config = data_ingestion_config
+            self._schema_config = read_yaml_file(file_path=SCHEMA_FILE_PATH)
         except Exception as e:
             raise MyException(e,sys)
 
@@ -48,6 +49,54 @@ class DataIngestion:
 
         except Exception as e:
             raise MyException(e,sys)
+        
+    def add_space_to_amount(self, dataframe: DataFrame) -> DataFrame:
+        '''
+        Giving space in between any amount values before and after
+        '''
+        try: 
+            raw_columns = self._schema_config['message_columns']
+            
+            if isinstance(dataframe[raw_columns], str):
+                pattern = r"(?<=Rs\.)"
+                modified_sentence = re.sub(pattern, " ", dataframe[raw_columns])
+                return modified_sentence
+            elif isinstance(dataframe[raw_columns], str):
+                pattern1 = r"(?<=Rs)"
+                modified_sentence1 = re.sub(pattern1, " ", dataframe[raw_columns])
+                return modified_sentence1
+            else:
+                return dataframe[raw_columns]
+            dataframe[raw_columns] = dataframe[raw_columns].apply(add_space_after_keyword)
+            # dataframe[raw_columns] = dataframe[raw_columns].apply(add_space1)
+            return dataframe  
+        except Exception as e:
+            raise MyException(e,sys)  
+
+    def add_space_before_bank(self, dataframe: DataFrame) -> DataFrame:
+        '''
+        Giving space at start or end of Bank Name
+        '''
+        try: 
+            # def add_space_before_bank(text_series):
+            raw_columns = self._schema_config['message_columns']
+            keywords = ['Canara Bank', 'Kotak Mahindra Bank', 'Indian Bank', 'Axis Bank']
+            modified_text_series = dataframe[raw_columns].copy()
+            for i, text in enumerate(modified_text_series):
+                for keyword in keywords:
+                    lowercase_keyword = keyword.lower()
+                    if text.lower().find(lowercase_keyword) != -1 and not text.lower().startswith(lowercase_keyword):
+                        modified_text_series[i] = text.replace(lowercase_keyword, ' ' + lowercase_keyword)
+                    uppercase_keyword = keyword.upper()
+                    if text.upper().find(uppercase_keyword) != -1 and not text.upper().startswith(uppercase_keyword):
+                        modified_text_series[i] = text.replace(uppercase_keyword, ' ' + uppercase_keyword)
+                    titlecase_keyword = keyword.title()
+                    if text.title().find(titlecase_keyword) != -1 and not text.title().startswith(titlecase_keyword):
+                        modified_text_series[i] = text.replace(titlecase_keyword, ' ' + titlecase_keyword)
+            return dataframe
+        except Exception as e:
+            raise MyException(e,sys)  
+        
 
     def split_data_as_train_test(self,dataframe: DataFrame) ->None:
         """
@@ -60,6 +109,7 @@ class DataIngestion:
         logging.info("Entered split_data_as_train_test method of Data_Ingestion class")
 
         try:
+ 
             train_set, test_set = train_test_split(dataframe, test_size=self.data_ingestion_config.train_test_split_ratio)
             logging.info("Performed train test split on the dataframe")
             logging.info(
@@ -68,6 +118,10 @@ class DataIngestion:
             dir_path = os.path.dirname(self.data_ingestion_config.training_file_path)
             os.makedirs(dir_path,exist_ok=True)
             
+            raw_columns = self._schema_config['message_columns']
+            #Saving the dataframe specific column in a path
+            dataframe_to_text_file(dataframe, raw_columns, self.data_ingestion_config.training_annotation_file_path)
+
             logging.info(f"Exporting train and test file path.")
             train_set.to_csv(self.data_ingestion_config.training_file_path,index=False,header=True)
             test_set.to_csv(self.data_ingestion_config.testing_file_path,index=False,header=True)
@@ -90,6 +144,14 @@ class DataIngestion:
             dataframe = self.export_data_into_feature_store()
 
             logging.info("Got the data from mongodb")
+
+            self.add_space_to_amount(dataframe)
+
+            # self.add_space_before_bank(dataframe)
+
+            # self.add_space_to_policy_number(dataframe)
+
+            logging.info("Added spaces before the entities as needed")
 
             self.split_data_as_train_test(dataframe)
 

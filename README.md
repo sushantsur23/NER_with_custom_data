@@ -9,6 +9,6 @@ Steps to run the project :-
 4. If you want to remove the environment created then run rm -r env_name/
 5. RUn the below command to add the value to "MONGODB_URL" variable.
 ```
-export MONGODB_URL= 
+export MONGODB_URL="XXXXX"
 ```
  

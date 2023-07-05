@@ -1,0 +1,42 @@
+columns:
+  - Source : category
+  - Sender ID: category
+  - SMS_Details: category
+  # - Pk_id: category
+  # - DeviceId: int
+  # - UserMobileNo: int
+  # - id: int
+  # - MobAddress: category
+  # - senderbody : string
+  # - SMSdate: datetime
+  # - dateSent: datetime
+  # - kind: category
+  # - SMSRead: category
+  # - CrtdDt: datetime
+  # - CrtdBy: datetime
+
+categorical_columns:
+  - Source
+  - Sender ID
+  - SMS_Details
+
+#   - Pk_id
+#   - MobAddress
+#   - senderbody
+#   - kind
+#   - SMSRead
+
+# datetime_columns:
+#   - SMSdate
+#   - dateSent
+#   - CrtdDt
+#   - CrtdBy
+
+# numerical_columns:
+#   - DeviceId
+#   - UserMobileNo
+#   - id
+
+
+message_columns:
+  - SMS_Details  
