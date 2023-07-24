@@ -167,28 +167,21 @@ def dataframe_to_text_file(dataframe, column_name, file_path):
     print(f"The column '{column_name}' has been successfully written to '{file_path}' as a text file.")
 
 #Function to add space after keyword Rs.
-def add_space_after_keyword(sentence):
-    keyword = "Rs."
-    keyword_index = sentence.find(keyword)
-    if isinstance(sentence, str):
-        pattern = r"\b(\d+(?:\.\d{1,2})?)\b"
-        modified_sentence = re.sub(pattern, r' \1', sentence)       
-        return modified_sentence
-    else :
-        return sentence
-
-# def add_space1(sentence):
-#     pattern1 = r"(Rs\.)"
-#     pattern2 = r"(?<!\d)\d+(?:\.\d{1,2})?(?!\d)"
+# def add_space_after_keyword(sentence):
+#     keyword = "Rs."
+#     keyword_index = sentence.find(keyword)
 #     if isinstance(sentence, str):
-#         if re.search(pattern1, sentence):
-#             modified_sentence = re.sub(pattern1, r"\1 ", sentence)
-#             return modified_sentence
-#         # elif re.search(pattern2, sentence):
-#         #     modified_sentence = re.sub(pattern2, r" \1", sentence)
-#         #     return modified_sentence
-#         else:
-#             return sentence
+#         pattern = r"\b(\d+(?:\.\d{1,2})?)\b"
+#         modified_sentence = re.sub(pattern, r' \1', sentence)       
+#         return modified_sentence
+#     else :
+#         return sentence
+
+def add_spaces_to_amounts(sentence):
+    if isinstance(sentence, str):
+        modified_sentence = re.sub(r"(Rs\.)", r"\1 ", sentence)
+    return modified_sentence
+
 
 #Add spaces before bank names    
 def add_space_before_bank(text_series):

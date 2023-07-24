@@ -55,20 +55,16 @@ class DataIngestion:
         Giving space in between any amount values before and after
         '''
         try: 
-            raw_columns = self._schema_config['message_columns']
-            
-            if isinstance(dataframe[raw_columns], str):
-                pattern = r"(?<=Rs\.)"
-                modified_sentence = re.sub(pattern, " ", dataframe[raw_columns])
-                return modified_sentence
-            elif isinstance(dataframe[raw_columns], str):
-                pattern1 = r"(?<=Rs)"
-                modified_sentence1 = re.sub(pattern1, " ", dataframe[raw_columns])
-                return modified_sentence1
-            else:
-                return dataframe[raw_columns]
-            dataframe[raw_columns] = dataframe[raw_columns].apply(add_space_after_keyword)
-            # dataframe[raw_columns] = dataframe[raw_columns].apply(add_space1)
+            raw_columns = self._schema_config['message_columns'][0]
+            # print(f"This is raw columns: {raw_columns}")
+            # print(f"this is data frame in the function: {dataframe[raw_columns]}")
+            for i in range(len(dataframe[raw_columns])):
+                # print("******\n",dataframe[raw_columns][i])
+                if type(dataframe[raw_columns][i])==str:
+                    modified_sentence = re.sub(r"(₹|Rs\.)", r"\1 ", dataframe[raw_columns][i])
+                    dataframe[raw_columns][i] = modified_sentence
+
+                    # print("########\n", modified_sentence)
             return dataframe  
         except Exception as e:
             raise MyException(e,sys)  
@@ -80,19 +76,17 @@ class DataIngestion:
         try: 
             # def add_space_before_bank(text_series):
             raw_columns = self._schema_config['message_columns']
-            keywords = ['Canara Bank', 'Kotak Mahindra Bank', 'Indian Bank', 'Axis Bank']
-            modified_text_series = dataframe[raw_columns].copy()
-            for i, text in enumerate(modified_text_series):
-                for keyword in keywords:
-                    lowercase_keyword = keyword.lower()
-                    if text.lower().find(lowercase_keyword) != -1 and not text.lower().startswith(lowercase_keyword):
-                        modified_text_series[i] = text.replace(lowercase_keyword, ' ' + lowercase_keyword)
-                    uppercase_keyword = keyword.upper()
-                    if text.upper().find(uppercase_keyword) != -1 and not text.upper().startswith(uppercase_keyword):
-                        modified_text_series[i] = text.replace(uppercase_keyword, ' ' + uppercase_keyword)
-                    titlecase_keyword = keyword.title()
-                    if text.title().find(titlecase_keyword) != -1 and not text.title().startswith(titlecase_keyword):
-                        modified_text_series[i] = text.replace(titlecase_keyword, ' ' + titlecase_keyword)
+            startwords = ["Canara", "Indian", "Axis","ICICI","BOB"]
+            endwords = ['Bank', 'bank',]
+
+            #Loop to add space before bank names
+            for i in range(len(dataframe[raw_columns])):
+                if isinstance(dataframe[raw_columns][i], str):
+                    dataframe[raw_columns][i] = re.sub(r"-(\b(?:{}))\b".format("|".join(startwords)), r"- \1", dataframe[raw_columns][i])
+                    
+            #Loop to add space after bank/Bank word
+            
+            
             return dataframe
         except Exception as e:
             raise MyException(e,sys)  
@@ -147,7 +141,7 @@ class DataIngestion:
 
             self.add_space_to_amount(dataframe)
 
-            # self.add_space_before_bank(dataframe)
+            self.add_space_before_bank(dataframe)
 
             # self.add_space_to_policy_number(dataframe)
 
@@ -168,3 +162,10 @@ class DataIngestion:
             return data_ingestion_artifact
         except Exception as e:
             raise MyException(e, sys) from e
+        
+# if __name__=="__main__":
+#     obj = DataIngestion()
+#     df=obj.export_data_into_feature_store()
+#     # print(df['SMS_Details'])
+#     df_new = obj.add_space_to_amount(df)
+#     # print(df_new['SMS_Details'])
