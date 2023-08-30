@@ -62,34 +62,87 @@ class DataIngestion:
                 # print("******\n",dataframe[raw_columns][i])
                 if type(dataframe[raw_columns][i])==str:
                     modified_sentence = re.sub(r"(₹|Rs\.)", r"\1 ", dataframe[raw_columns][i])
+                    modified_sentence = modified_sentence.replace("'"," ")
                     dataframe[raw_columns][i] = modified_sentence
 
-                    # print("########\n", modified_sentence)
+            return dataframe  
+        except Exception as e:
+            raise MyException(e,sys)  
+        
+    def add_space_after_amount(self, dataframe: DataFrame) -> DataFrame:
+        '''
+        Giving space in between any amount values before and after
+        '''
+        try: 
+            raw_columns = self._schema_config['message_columns'][0]
+            
+            for i in range(len(dataframe[raw_columns])):
+                # print("******\n",dataframe[raw_columns][i])
+                if type(dataframe[raw_columns][i])==str:
+                    pattern = r'(\d+)/-'
+                    modified_sentence = re.sub(pattern, r'\1 /-', dataframe[raw_columns][i])
+                    dataframe[raw_columns][i] = modified_sentence
+            return dataframe  
+        except Exception as e:
+            raise MyException(e,sys)  
+        
+    def add_space_before_bank(self, dataframe: DataFrame) -> DataFrame:
+        '''
+        Giving space in between any amount values before and after
+        '''
+        try: 
+            raw_columns = self._schema_config['message_columns'][0]
+            word_list = ['BOB','Canara','HDFC']
+            for i in range(len(dataframe[raw_columns])):
+                for word in word_list:
+                # print("******\n",dataframe[raw_columns][i])
+                    if type(dataframe[raw_columns][i])==str:
+                        pattern = r'-(\b' + re.escape(word) + r'\b)'
+                        modified_sentence = re.sub(pattern, r' - \1', dataframe[raw_columns][i])
+                        dataframe[raw_columns][i] = modified_sentence
+
             return dataframe  
         except Exception as e:
             raise MyException(e,sys)  
 
-    def add_space_before_bank(self, dataframe: DataFrame) -> DataFrame:
+    def add_space1(self, dataframe: DataFrame) -> DataFrame:
         '''
-        Giving space at start or end of Bank Name
+        Giving space in between any amount values before and after
         '''
         try: 
-            # def add_space_before_bank(text_series):
-            raw_columns = self._schema_config['message_columns']
-            startwords = ["Canara", "Indian", "Axis","ICICI","BOB"]
-            endwords = ['Bank', 'bank',]
-
-            #Loop to add space before bank names
+            raw_columns = self._schema_config['message_columns'][0]
+            word_list = ['BOB','Canara','HDFC']
             for i in range(len(dataframe[raw_columns])):
-                if isinstance(dataframe[raw_columns][i], str):
-                    dataframe[raw_columns][i] = re.sub(r"-(\b(?:{}))\b".format("|".join(startwords)), r"- \1", dataframe[raw_columns][i])
-                    
-            #Loop to add space after bank/Bank word
             
-            
-            return dataframe
+            # print("******\n",dataframe[raw_columns][i])
+                if type(dataframe[raw_columns][i])==str:
+                    pattern = r'Rs(\d+)'
+                    modified_sentence = re.sub(pattern, r'Rs \1', dataframe[raw_columns][i])
+                    modified_sentence = modified_sentence.replace('-',' ')
+                    dataframe[raw_columns][i] = modified_sentence
+
+            return dataframe  
         except Exception as e:
-            raise MyException(e,sys)  
+            raise MyException(e,sys)
+        
+    def add_start_space(self, dataframe: DataFrame) -> DataFrame:
+        '''
+        Giving space in between any amount values before and after
+        '''
+        try: 
+            raw_columns = self._schema_config['message_columns'][0]
+            for i in range(len(dataframe[raw_columns])):
+            
+            # print("******\n",dataframe[raw_columns][i])
+                if type(dataframe[raw_columns][i])==str:
+                    modified_sentence = re.sub(r"'", '"', dataframe[raw_columns][i])
+                    dataframe[raw_columns][i] = modified_sentence
+
+            return dataframe  
+        except Exception as e:
+            raise MyException(e,sys)
+        
+
         
 
     def split_data_as_train_test(self,dataframe: DataFrame) ->None:
@@ -139,9 +192,13 @@ class DataIngestion:
 
             logging.info("Got the data from mongodb")
 
+            # self.add_start_space(dataframe)
             self.add_space_to_amount(dataframe)
-
+            self.add_space_after_amount(dataframe)
             self.add_space_before_bank(dataframe)
+            self.add_space1(dataframe)
+            
+            # self.add_space_before_bank(dataframe)
 
             # self.add_space_to_policy_number(dataframe)
 
