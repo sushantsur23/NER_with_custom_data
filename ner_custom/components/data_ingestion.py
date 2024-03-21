@@ -4,7 +4,7 @@ from typing import Tuple
 import numpy as np
 from pandas import DataFrame
 from sklearn.model_selection import train_test_split
-from langdetect import detect
+# from langdetect import detect
 from ner_custom.entity.config_entity import DataIngestionConfig
 from ner_custom.entity.artifact_entity import DataIngestionArtifact
 from ner_custom.exception import MyException
@@ -29,22 +29,23 @@ class DataIngestion:
     def export_data_into_feature_store(self)->DataFrame:
         """
         Method Name :   export_data_into_feature_store
-        Description :   This method exports data from mongodb to csv file
+        Description :   This method exports data from SQL Server to csv file
         
         Output      :   data is returned as artifact of data ingestion components
         On Failure  :   Write an exception log and then raise an exception
         """
         try:
-            logging.info(f"Exporting data from mongodb")
+            logging.info(f"Exporting data from SQL Client")
             data = Data()
-            dataframe = data.export_collection_as_dataframe(collection_name=
-                                                                self.data_ingestion_config.collection_name)
+            dataframe = data.export_collection_as_dataframe()
             logging.info(f"Shape of dataframe: {dataframe.shape}")
             feature_store_file_path  = self.data_ingestion_config.feature_store_file_path
+            print(f"This is feature store file path {feature_store_file_path}")
             dir_path = os.path.dirname(feature_store_file_path)
             os.makedirs(dir_path,exist_ok=True)
             logging.info(f"Saving exported data into feature store file path: {feature_store_file_path}")
-            dataframe.to_csv(feature_store_file_path,index=False,header=True)
+            dataframe.to_csv(feature_store_file_path,index=False, header=True, escapechar="\\")
+            print("I am here")
             return dataframe
 
         except Exception as e:
@@ -52,7 +53,7 @@ class DataIngestion:
         
     def add_space_to_amount(self, dataframe: DataFrame) -> DataFrame:
         '''
-        Giving space in between any amount values before and after
+        Giving space in between any amount values before and after`
         '''
         try: 
             raw_columns = self._schema_config['message_columns'][0]
@@ -157,23 +158,29 @@ class DataIngestion:
 
         try:
  
-            train_set, test_set = train_test_split(dataframe, test_size=self.data_ingestion_config.train_test_split_ratio)
+            train_set, val_set, test_set = np.split(dataframe.sample(frac=1, random_state=42),
+                            [int(.8 * len(dataframe)), int(.9 * len(dataframe))])
+
             logging.info("Performed train test split on the dataframe")
             logging.info(
                 "Exited split_data_as_train_test method of Data_Ingestion class"
             )
             dir_path = os.path.dirname(self.data_ingestion_config.training_file_path)
             os.makedirs(dir_path,exist_ok=True)
-            
+
             raw_columns = self._schema_config['message_columns']
+            print("raw Columns is ",raw_columns)
             #Saving the dataframe specific column in a path
-            dataframe_to_text_file(dataframe, raw_columns, self.data_ingestion_config.training_annotation_file_path)
+            # print("File Path is ",self.data_ingestion_config.feature_store_file_path)
+
+            dataframe_to_text_file(dataframe, raw_columns, self.data_ingestion_config.text_file_path)
 
             logging.info(f"Exporting train and test file path.")
             train_set.to_csv(self.data_ingestion_config.training_file_path,index=False,header=True)
             test_set.to_csv(self.data_ingestion_config.testing_file_path,index=False,header=True)
+            val_set.to_csv(self.data_ingestion_config.validation_file_path,index=False,header=True)
 
-            logging.info(f"Exported train and test file path.")
+            logging.info(f"Exported train and test and validation file path.")
         except Exception as e:
             raise MyException(e, sys) from e
 
